@@ -13,6 +13,8 @@ API Course, Lesson 1 -->
    <script type="text/javascript">
      // Create a map variable
      var map;
+     // Create a new blank array for all the listing markers.
+     var markers = [];
      // Function to initialize the map within the map div
      function initMap() {
        map = new google.maps.Map(document.getElementById('map'), {
@@ -24,17 +26,59 @@ API Course, Lesson 1 -->
        // TODO: Create a single marker appearing on initialize -
        // Create it with the position of the singleLatLng,
        // on the map, and give it your own title!
+       var positions = [
+         {title: 'Place 1', location: {lat: 40.7713024, lng: -73.9632393}},
+         {title: 'Place 2', location: {lat: 40.7444883, lng: -73.9949465}}
+       ];
 
-       // TODO: create a single infowindow, with your own content.
-       // It must appear on the marker
+       var myInfoWindow = new google.maps.InfoWindow();
+       var bounds = new google.maps.LatLngBounds();
 
-       // TODO: create an EVENT LISTENER so that the infowindow opens when
-       // the marker is clicked!
+       // The following group uses the location array to create an array of markers on initialize.
+       for (var i=0; i<positions.length; i++) {
+         // Get the position from the location array.
+         var position = positions[i].location;
+         var title = positions[i].title;
+         // Create a marker per location, and put into markers array.
+         var marker = new google.maps.Marker({
+           map: map,
+           position: position,
+           title: position,
+           icon: 'https://maps.google.com/mapfiles/kml/shapes/info-i_maps.png',
+           animation: google.maps.Animation.DROP,
+           id: i
+         });
+         // Push the marker to our array of markers.
+         markers.push(marker);
+         // Create an onclick event to open an infowindow at each marker.
+         marker.addListener('click', function() {
+           populateInfoWindow(this, myInfoWindow);
+         });
+         bounds.extend(markers[i].position);
+       }
+       // Extend the boundaries of the map for each marker
+       map.fitBounds(bounds);
+     }
+
+     // This function populates the infowindow when the marker is clicked. We'll only allow
+     // one infowindow which will open at the marker that is clicked, and populate based
+     // on that markers position.
+     function populateInfoWindow(marker, infowindow) {
+       // Check to make sure the infowindow is not already opened on this marker.
+       if (infowindow.marker != marker) {
+         infowindow.marker = marker;
+         infowindow.setContent('<div>' + marker.title + '</div>');
+         infowindow.open(map, marker);
+         // Make sure the marker property is cleared if the infowindow is closed.
+         infowindow.addListener('closeclick',function(){
+           infowindow.setMarker = null;
+         });
+       }
      }
    </script>
    <!--TODO: Insert your API Key in the below call to load the API.-->
    <script async defer
-     src="https://maps.googleapis.com/maps/api/js?v=3&key=XXX&callback=initMap">
+     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDzrYjN4P6oUFxmUUHdgeHrJ7m9oeRFvBc&callback=initMap">
    </script>
  </body>
 </html>
